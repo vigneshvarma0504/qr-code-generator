@@ -1,17 +1,16 @@
 name: CI smoke
-
 on:
   push:
     branches: ["main"]
   workflow_dispatch: {}
 
 jobs:
-  build:
+  ping:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Debug workspace
-        run: |
+      - run: echo "Actions is working"
+
           pwd
           ls -la
       - name: Set up Docker Buildx
