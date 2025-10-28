@@ -8,5 +8,3 @@ logs
 *.log
 .env
 .git
-.gitignore
-README.md
