@@ -1,14 +1,9 @@
-
-### 1.8 `.github/workflows/docker-publish.yml` → paste this
-This builds on pushes to `main`. If you add Docker Hub secrets, it will also push.
-
-```yaml
 name: Build and (optional) Push Docker image
 
 on:
   push:
-    branches: [ "main" ]
-  workflow_dispatch:
+    branches: ["main"]
+  workflow_dispatch: {}   # <-- explicit empty map avoids YAML parser quirks
 
 jobs:
   build:
@@ -28,6 +23,7 @@ jobs:
           push: false
 
   push:
+    # Only runs if both secrets are set
     if: ${{ secrets.DOCKERHUB_USERNAME && secrets.DOCKERHUB_TOKEN }}
     needs: build
     runs-on: ubuntu-latest
