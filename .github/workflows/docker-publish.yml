@@ -25,11 +25,10 @@ jobs:
   push:
     needs: build
     runs-on: ubuntu-latest
-    # expose secrets as env so we can test them in `if:`
+    # Map secrets to env so we can safely gate the job
     env:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-    # only run if both envs are non-empty
     if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' }}
     steps:
       - name: Checkout
