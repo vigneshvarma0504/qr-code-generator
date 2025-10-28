@@ -1,0 +1,12 @@
+.vscode
+__pycache__
+*.pyc
+.venv
+env
+qr_codes
+logs
+*.log
+.env
+.git
+.gitignore
+README.md
