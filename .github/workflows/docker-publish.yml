@@ -1,4 +1,4 @@
-name: Build and (optional) Push Docker image
+name: Docker build and (optional) push
 
 on:
   push:
@@ -11,19 +11,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Debug workspace
         run: |
           pwd
           ls -la
           echo "----- .github/workflows -----"
           ls -la .github/workflows || true
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
       - name: Build image (no push)
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./Dockerfile
+          file: ./Dockerfile         # ensure Dockerfile is in repo root
           tags: qr-code-generator-app:ci
           push: false
 
@@ -33,12 +36,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # Only log in if both secrets exist
       - name: Login to Docker Hub
         if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Only push if both secrets exist
       - name: Build and push (latest)
         if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
         uses: docker/build-push-action@v6
@@ -47,58 +54,8 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/qr-code-generator-app:latest
-      - name: Skip note (no secrets set)
-        if: ${{ secrets.DOCKERHUB_USERNAME == '' || secrets.DOCKERHUB_TOKEN == '' }}
-        run: echo "Docker Hub secrets not set; push step skipped."
-name: Build and (optional) Push Docker image
 
-on:
-  push:
-    branches: ["main"]
-  workflow_dispatch: {}
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Debug workspace
-        run: |
-          pwd
-          ls -la
-          echo "----- .github/workflows -----"
-          ls -la .github/workflows || true
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Build image (no push)
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          tags: qr-code-generator-app:ci
-          push: false
-
-  push:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Login to Docker Hub
-        if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push (latest)
-        if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/qr-code-generator-app:latest
+      # If secrets are missing, leave a friendly note and pass
       - name: Skip note (no secrets set)
         if: ${{ secrets.DOCKERHUB_USERNAME == '' || secrets.DOCKERHUB_TOKEN == '' }}
         run: echo "Docker Hub secrets not set; push step skipped."
